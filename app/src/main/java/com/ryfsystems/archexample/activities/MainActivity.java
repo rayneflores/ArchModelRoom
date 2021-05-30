@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         rv1.setAdapter(noteAdapter);
 
         noteViewModel = new ViewModelProvider(this).get(NoteViewModel.class);
-        noteViewModel.getAllNotes().observe(this, notes -> noteAdapter.setNoteList(notes));
+        noteViewModel.getAllNotes().observe(this, noteAdapter::submitList);
 
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(
                 0,

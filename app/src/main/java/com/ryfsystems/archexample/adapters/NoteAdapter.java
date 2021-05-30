@@ -6,18 +6,34 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ryfsystems.archexample.R;
 import com.ryfsystems.archexample.entities.Note;
 
-import java.util.ArrayList;
-import java.util.List;
+public class NoteAdapter extends ListAdapter<Note, NoteAdapter.NoteHolder> {
 
-public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
-
-    private List<Note> noteList = new ArrayList<>();
     private OnItemClickListener listener;
+
+    public NoteAdapter() {
+        super(DIFF_CALLBACK);
+    }
+
+    private static final DiffUtil.ItemCallback<Note> DIFF_CALLBACK = new DiffUtil.ItemCallback<Note>() {
+        @Override
+        public boolean areItemsTheSame(Note oldItem, Note newItem) {
+            return oldItem.getId() == newItem.getId();
+        }
+
+        @Override
+        public boolean areContentsTheSame(Note oldItem, Note newItem) {
+            return oldItem.getTitle().equals(newItem.getTitle()) &&
+                    oldItem.getDescription().equals(newItem.getDescription()) &&
+                    oldItem.getPriority() == newItem.getPriority();
+        }
+    };
 
     class NoteHolder extends RecyclerView.ViewHolder {
         private TextView tvTitle;
@@ -30,13 +46,10 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
             tvDescription = itemView.findViewById(R.id.tvDescription);
             tvPriority = itemView.findViewById(R.id.tvPriority);
 
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    int position = getAdapterPosition();
-                    if (listener != null && position != RecyclerView.NO_POSITION) {
-                        listener.onItemClick(noteList.get(position));
-                    }
+            itemView.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+                if (listener != null && position != RecyclerView.NO_POSITION) {
+                    listener.onItemClick(getItem(position));
                 }
             });
         }
@@ -59,23 +72,13 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull NoteAdapter.NoteHolder holder, int position) {
-        Note currentNote = noteList.get(position);
+        Note currentNote = getItem(position);
         holder.tvTitle.setText(currentNote.getTitle());
         holder.tvDescription.setText(currentNote.getDescription());
         holder.tvPriority.setText(String.valueOf(currentNote.getPriority()));
     }
 
-    @Override
-    public int getItemCount() {
-        return noteList.size();
-    }
-
-    public void setNoteList(List<Note> noteList) {
-        this.noteList = noteList;
-        notifyDataSetChanged();
-    }
-
     public Note getNoteAt(int position) {
-        return noteList.get(position);
+        return getItem(position);
     }
 }
